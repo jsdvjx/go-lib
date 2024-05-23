@@ -2,6 +2,7 @@ package update
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"os"
@@ -128,6 +129,7 @@ func (update *Update) download(local string) error {
 		}
 		return nil
 	} else {
+		logrus.Error("download failed[%d]", resp.StatusCode)
 		return fmt.Errorf("download failed[%d]", resp.StatusCode)
 	}
 }
