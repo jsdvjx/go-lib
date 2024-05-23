@@ -7,22 +7,35 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 type Update struct {
-	source  string
-	target  string
-	service string
-	name    string
+	Source  string
+	Target  string
+	Service string
+	Name    string
 }
 
-func New(source, target, service, name string) *Update {
-	return &Update{
-		source:  source,
-		target:  target,
-		service: service,
-		name:    name,
+func (update *Update) Watch() {
+	up := func() {
+		if update.NeedUpdate() {
+			err := update.Do()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
+		}
 	}
+	t := time.Tick(1 * time.Minute)
+	up()
+	go func() {
+		for {
+			select {
+			case <-t:
+				up()
+			}
+		}
+	}()
 }
 
 func (update *Update) NeedUpdate() bool {
@@ -33,7 +46,7 @@ func (update *Update) NeedUpdate() bool {
 	return update.CurrentVersion() != remoteVersion
 }
 func (update *Update) localPath() string {
-	return fmt.Sprintf("/usr/bin/%s", update.name)
+	return fmt.Sprintf("/usr/bin/%s", update.Name)
 }
 func (update *Update) SaveVersion(version string) error {
 	file, err := os.Create(update.versionLocalPath())
@@ -63,19 +76,19 @@ func (update *Update) Do() error {
 	if err != nil {
 		return err
 	}
-	command := fmt.Sprintf("service %s restart", update.service)
+	command := fmt.Sprintf("service %s restart", update.Service)
 	cmd := exec.Command("/bin/bash", "-c", command)
 	return cmd.Run()
 }
 
 func (update *Update) url() string {
-	return fmt.Sprintf("%s/%s-%s", update.source, update.name, env())
+	return fmt.Sprintf("%s/%s-%s", update.Source, update.Name, env())
 }
 func (update *Update) versionLocalPath() string {
-	return fmt.Sprintf("%s-%s-version", update.name, env())
+	return fmt.Sprintf("%s-%s-version", update.Name, env())
 }
 func (update *Update) binaryLocalPath() string {
-	return fmt.Sprintf("%s-%s", update.name, env())
+	return fmt.Sprintf("%s-%s", update.Name, env())
 }
 func env() string {
 	res := os.Getenv("ENV")
@@ -87,7 +100,7 @@ func env() string {
 
 func (update *Update) GetRemoteVersion() string {
 	client := &http.Client{}
-	req, _ := http.NewRequest("HEAD", update.source, nil)
+	req, _ := http.NewRequest("HEAD", update.Source, nil)
 	resp, _ := client.Do(req)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -103,7 +116,7 @@ func (update *Update) GetRemoteVersion() string {
 
 func (update *Update) download(local string) error {
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", update.source, nil)
+	req, _ := http.NewRequest("GET", update.Source, nil)
 	resp, _ := client.Do(req)
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()

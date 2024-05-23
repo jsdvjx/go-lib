@@ -28,10 +28,10 @@ func TestUpdate_CurrentVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			update := &Update{
-				source:  tt.fields.source,
-				target:  tt.fields.target,
-				service: tt.fields.service,
-				name:    tt.fields.name,
+				Source:  tt.fields.source,
+				Target:  tt.fields.target,
+				Service: tt.fields.service,
+				Name:    tt.fields.name,
 			}
 			if got := update.CurrentVersion(); got != tt.want {
 				t.Errorf("CurrentVersion() = %v, want %v", got, tt.want)
@@ -66,10 +66,10 @@ func TestUpdate_GetRemoteVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			update := &Update{
-				source:  tt.fields.source,
-				target:  tt.fields.target,
-				service: tt.fields.service,
-				name:    tt.fields.name,
+				Source:  tt.fields.source,
+				Target:  tt.fields.target,
+				Service: tt.fields.service,
+				Name:    tt.fields.name,
 			}
 			if got := update.GetRemoteVersion(); got != tt.want {
 				t.Errorf("GetRemoteVersion() = %v, want %v", got, tt.want)
