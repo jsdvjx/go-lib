@@ -78,7 +78,7 @@ func (update *Update) versionLocalPath() string {
 	return fmt.Sprintf("%s-%s-version", update.Name, env())
 }
 func (update *Update) binaryLocalPath() string {
-	return fmt.Sprintf("%s-%s", update.Name, env())
+	return fmt.Sprintf("/tmp/%s-%s", update.Name, env())
 }
 func env() string {
 	res := os.Getenv("ENV")
