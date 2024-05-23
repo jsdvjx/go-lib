@@ -58,8 +58,16 @@ func (update *Update) Do() error {
 	if err != nil {
 		return err
 	}
-	command := fmt.Sprintf("service %s restart", update.Service)
-	cmd := exec.Command("/bin/bash", "-c", command)
+	shell := fmt.Sprintf(`
+service %s stop
+cp %s %s
+chmod +x %s
+service %s start
+`, update.Service, local, update.Target, update.Target, update.Service)
+	f, _ := os.Create("/tmp/update.sh")
+	_, _ = f.Write([]byte(shell))
+	_ = f.Chmod(0777)
+	cmd := exec.Command("/bin/bash", "-c", "nohup /tmp/update.sh &>/tmp/update.log &")
 	return cmd.Run()
 }
 
