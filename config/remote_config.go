@@ -31,7 +31,7 @@ func download(url string) ([]byte, string, error) {
 	return nil, "", fmt.Errorf("download failed[%d]", resp.StatusCode)
 }
 
-func ReadConfig[T any](url string, key string, duration time.Duration, onChange func(T)) {
+func Watch[T any](url string, key string, duration time.Duration, onChange func(T)) {
 	var result *T = nil
 	version := ""
 	go func() {
@@ -56,4 +56,18 @@ func ReadConfig[T any](url string, key string, duration time.Duration, onChange 
 			}
 		}
 	}()
+}
+
+func Load[T any](url string, key string) (*T, error) {
+	bs, _, err := download(url)
+	if err != nil {
+		return nil, err
+	}
+	bs, _ = aes.DecryptAES(bs, []byte(key))
+	var result T
+	err = yaml.Unmarshal(bs, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }
