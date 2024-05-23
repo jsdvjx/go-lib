@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 )
 
 type Update struct {
@@ -15,27 +14,6 @@ type Update struct {
 	Target  string
 	Service string
 	Name    string
-}
-
-func (update *Update) Watch() {
-	up := func() {
-		if update.NeedUpdate() {
-			err := update.Do()
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-		}
-	}
-	t := time.Tick(1 * time.Minute)
-	up()
-	go func() {
-		for {
-			select {
-			case <-t:
-				up()
-			}
-		}
-	}()
 }
 
 func (update *Update) NeedUpdate() bool {
@@ -67,6 +45,9 @@ func (update *Update) SaveVersion(version string) error {
 }
 
 func (update *Update) Do() error {
+	if !update.NeedUpdate() {
+		return nil
+	}
 	local := update.binaryLocalPath()
 	err := update.download(local)
 	if err != nil {
