@@ -7,7 +7,7 @@ import (
 
 func TestFetch(t *testing.T) {
 	type args struct {
-		t        *Task
+		t        *Client
 		tType    string
 		consumer string
 	}
@@ -21,7 +21,7 @@ func TestFetch(t *testing.T) {
 		{
 			name: "Test 1",
 			args: args{
-				t: &Task{
+				t: &Client{
 					Url:   "https://tasks.k8test.bc2c.cn/",
 					Token: "f2e76228-18e7-40b8-bf02-95c9c7679ef5",
 				},

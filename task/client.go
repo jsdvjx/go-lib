@@ -9,7 +9,7 @@ import (
 	"net/url"
 )
 
-type Task struct {
+type Client struct {
 	Url      string
 	Token    string
 	Consumer string
@@ -46,7 +46,7 @@ type CountItem struct {
 	Count int    `json:"count"`
 }
 
-func Fetch[T any](t *Task, tType string, consumer string) (*ApiResponse[T], error) {
+func Fetch[T any](t *Client, tType string, consumer string) (*ApiResponse[T], error) {
 	client := &http.Client{}
 	u, err := url.Parse(t.Url + "task/pull")
 	if err != nil {
@@ -82,7 +82,7 @@ func Fetch[T any](t *Task, tType string, consumer string) (*ApiResponse[T], erro
 	}
 	return &apiResp, nil
 }
-func Counts(t *Task) ([]CountItem, error) {
+func Counts(t *Client) ([]CountItem, error) {
 	client := &http.Client{}
 	u, err := url.Parse(t.Url + "task/count")
 	if err != nil {
@@ -116,7 +116,7 @@ func Counts(t *Task) ([]CountItem, error) {
 	}
 	return apiResp.Data, nil
 }
-func (t *Task) update(id int64, extra string) bool {
+func (t *Client) update(id int64, extra string) bool {
 	client := &http.Client{}
 	Url := fmt.Sprintf("%stask/extra/%d/%s", t.Url, id, t.Consumer)
 	extraBuff := bytes.NewBufferString(extra)
@@ -136,7 +136,7 @@ func (t *Task) update(id int64, extra string) bool {
 	return true
 }
 
-func unComplete[T any](t *Task) (*Entity[T], error) {
+func unComplete[T any](t *Client) (*Entity[T], error) {
 	client := &http.Client{}
 	Url := fmt.Sprintf("%s/task/uncompleted/%s", t.Url, t.Consumer)
 	req, err := http.NewRequest("GET", Url, nil)
@@ -163,7 +163,7 @@ func unComplete[T any](t *Task) (*Entity[T], error) {
 	return &result.Data, nil
 }
 
-func (t *Task) Complete(text string, status string, id int64) error {
+func (t *Client) Complete(text string, status string, id int64) error {
 	client := &http.Client{}
 
 	result := make(map[string]any)
