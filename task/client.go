@@ -10,8 +10,9 @@ import (
 )
 
 type Task struct {
-	Url   string
-	Token string
+	Url      string
+	Token    string
+	Consumer string
 }
 type ApiResponse[T any] struct {
 	Data    Entity[T] `json:"data,omitempty"` // 使用指针来模拟可空性，omitempty表示如果字段为nil，则不会序列化到JSON中
@@ -115,14 +116,60 @@ func Counts(t *Task) ([]CountItem, error) {
 	}
 	return apiResp.Data, nil
 }
+func (t *Task) update(id int64, extra string) bool {
+	client := &http.Client{}
+	Url := fmt.Sprintf("%stask/extra/%d/%s", t.Url, id, t.Consumer)
+	extraBuff := bytes.NewBufferString(extra)
+	req, err := http.NewRequest("POST", Url, extraBuff)
+	req.Header.Set("Authorization", "Bearer "+t.Token)
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return false
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return false
+	}
+	if resp.StatusCode != 200 {
+		return false
+	}
+	return true
+}
 
-func (t *Task) Complete(url string, status string, id int64) error {
+func unComplete[T any](t *Task) (*Entity[T], error) {
+	client := &http.Client{}
+	Url := fmt.Sprintf("%s/task/uncompleted/%s", t.Url, t.Consumer)
+	req, err := http.NewRequest("GET", Url, nil)
+	req.Header.Set("Authorization", "Bearer "+t.Token)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, err
+	}
+
+	var result ApiResponse[T]
+	tmp, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(tmp, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result.Data, nil
+}
+
+func (t *Task) Complete(text string, status string, id int64) error {
 	client := &http.Client{}
 
 	result := make(map[string]any)
 	result["id"] = id
 	result["status"] = status
-	result["result"] = url
+	result["result"] = text
 	data, err := json.Marshal(result)
 	if err != nil {
 		return err
