@@ -136,7 +136,7 @@ func (t *Client) update(id int64, extra string) bool {
 	return true
 }
 
-func unComplete[T any](t *Client) (*Entity[T], error) {
+func UnComplete[T any](t *Client) (*Entity[T], error) {
 	client := &http.Client{}
 	Url := fmt.Sprintf("%s/task/uncompleted/%s", t.Url, t.Consumer)
 	req, err := http.NewRequest("GET", Url, nil)
