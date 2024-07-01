@@ -117,7 +117,7 @@ func Counts(t *Client) ([]CountItem, error) {
 	}
 	return apiResp.Data, nil
 }
-func (t *Client) update(id int64, extra string) bool {
+func (t *Client) Update(id int64, extra string) bool {
 	client := &http.Client{}
 	Url := fmt.Sprintf("%stask/extra/%d/%s", t.Url, id, t.Consumer)
 	extraBuff := bytes.NewBufferString(extra)
