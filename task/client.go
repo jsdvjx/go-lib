@@ -46,7 +46,7 @@ type CountItem struct {
 	Count int    `json:"count"`
 }
 
-func Fetch[T any](t *Client, tType string, consumer string) (*ApiResponse[T], error) {
+func Fetch[T any](t *Client, tType string) (*ApiResponse[T], error) {
 	client := &http.Client{}
 	u, err := url.Parse(t.Url + "task/pull")
 	if err != nil {
@@ -54,7 +54,8 @@ func Fetch[T any](t *Client, tType string, consumer string) (*ApiResponse[T], er
 	}
 	query := u.Query()
 	query.Set("type", tType)
-	query.Set("consumer", consumer)
+
+	query.Set("consumer", t.Consumer)
 	u.RawQuery = query.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
