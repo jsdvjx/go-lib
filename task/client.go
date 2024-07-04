@@ -40,6 +40,7 @@ type Entity[T any] struct {
 	StartedAt    *string `json:"started_at,omitempty"`
 	FinishedAt   *string `json:"finished_at,omitempty"`
 	Param        T       `json:"param,omitempty"`
+	Extra        *string `json:"extra,omitempty"`
 }
 type CountItem struct {
 	Type  string `json:"type"`
