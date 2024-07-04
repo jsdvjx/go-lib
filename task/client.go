@@ -140,7 +140,7 @@ func (t *Client) Update(id int64, extra string) bool {
 
 func UnComplete[T any](t *Client) (*T, error) {
 	client := &http.Client{}
-	Url := fmt.Sprintf("%s/task/uncompleted/%s", t.Url, t.Consumer)
+	Url := fmt.Sprintf("%stask/uncompleted/%s", t.Url, t.Consumer)
 	req, err := http.NewRequest("GET", Url, nil)
 	req.Header.Set("Authorization", "Bearer "+t.Token)
 	req.Header.Set("Content-Type", "application/json")
@@ -149,7 +149,8 @@ func UnComplete[T any](t *Client) (*T, error) {
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, err
+		tmp, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("http status code: %d,%s", resp.StatusCode, string(tmp))
 	}
 
 	var result ApiBaseResponse[T]
