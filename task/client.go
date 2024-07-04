@@ -137,7 +137,7 @@ func (t *Client) Update(id int64, extra string) bool {
 	return true
 }
 
-func UnComplete[T any](t *Client) (*Entity[T], error) {
+func UnComplete[T any](t *Client) (*T, error) {
 	client := &http.Client{}
 	Url := fmt.Sprintf("%s/task/uncompleted/%s", t.Url, t.Consumer)
 	req, err := http.NewRequest("GET", Url, nil)
@@ -151,7 +151,7 @@ func UnComplete[T any](t *Client) (*Entity[T], error) {
 		return nil, err
 	}
 
-	var result ApiResponse[T]
+	var result ApiBaseResponse[T]
 	tmp, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
